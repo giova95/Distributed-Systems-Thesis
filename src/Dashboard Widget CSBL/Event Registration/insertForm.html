@@ -1,0 +1,191 @@
+<html>
+  <head>
+    <style>
+      #container {
+        display: flex;
+        flex-direction: column;
+      }
+
+      #form-row {
+        padding: 4px;
+      }
+
+      #txt-area {
+        margin-top: 5px;
+        width: 100%;
+      }
+
+      #desc {
+        width: 100%;
+        height: 100%;
+      }
+
+      label {
+        font-weight: 700;
+        font-family: arial;
+        font-size: 15px;
+        padding: 3.5px 0;
+        color: #fff;
+        margin: 10 22;
+        white-space: pre-line;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="container">
+      <div id="form-row">
+        <label>Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          name="name"
+          placeholder="Event Name"
+          required
+        />
+      </div>
+      <div id="form-row">
+        <label>Kind</label>
+        <select class="form-control" id="kind" name="kind">
+          <option value=""></option>
+          <option value="Fire">Fire</option>
+          <option value="Suspicious Package">Suspicious Package</option>
+          <option value="Road Accident">Road Accident</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div id="form-row">
+        <label>Severity</label>
+        <select class="form-control" id="severity" name="severity">
+          <option value="Green"></option>
+          <option value="White">Low (White)</option>
+          <option value="Yellow">Relevant (Yellow)</option>
+          <option value="Orange">Medium (Orange)</option>
+          <option value="Red">Critical (Red)</option>
+        </select>
+      </div>
+      <div id="form-row">
+        <label>People Involved</label>
+        <select class="form-control" id="people-involved">
+          <option value=""></option>
+          <option value="5">~5</option>
+          <option value="10">~10</option>
+          <option value="50">~50</option>
+          <option value="100">~100</option>
+          <option value="1000">~1000</option>
+        </select>
+      </div>
+      <div id="form-row">
+        <label>Impact</label>
+        <select class="form-control" id="impact">
+          <option value=""></option>
+          <option value="Traffic Jam">Traffic Jam</option>
+          <option value="People Disease">People Disease</option>
+          <option value="Pollutant">Pollutant</option>
+          <option value="Noise">Noise</option>
+          <option value="Mixt">Mixt</option>
+        </select>
+      </div>
+      <div id="form-row">
+        <label>Description</label>
+        <div id="txt-area">
+          <textarea
+            class="form-control"
+            id="desc"
+            name="desc"
+            placeholder="Event Description"
+            rows="5"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      const nameInput = document.getElementById("name");
+      const descInput = document.getElementById("desc");
+      const kindSelect = document.getElementById("kind");
+      const severitySelect = document.getElementById("severity");
+      const peopleInvolvedSelect = document.getElementById("people-involved");
+      const impactSelect = document.getElementById("impact");
+      let param = {};
+      let data = {
+        name: "",
+        kind: "",
+        severity: "",
+        peopleInvolved: "",
+        impact: "",
+        desc: "",
+      };
+      nameInput.addEventListener("input", (event) => {
+        data.name = event.target.value;
+        param.data = data;
+        parent.$("body").trigger({
+          type: "showExternalContentFromExternalContent_w_ExternalContent_3955_widgetExternalContent37730",
+          targetWidget: "w_ExternalContent_3955_widgetExternalContent37730",
+          events: "sendContent",
+          passedData: param,
+        });
+      });
+      descInput.addEventListener("input", (event) => {
+        data.desc = event.target.value;
+        param.data = data;
+        parent.$("body").trigger({
+          type: "showExternalContentFromExternalContent_w_ExternalContent_3955_widgetExternalContent37730",
+          targetWidget: "w_ExternalContent_3955_widgetExternalContent37730",
+          events: "sendContent",
+          passedData: param,
+        });
+      });
+      kindSelect.addEventListener("change", (event) => {
+        data.kind = event.target.value;
+        param.data = data;
+        parent.$("body").trigger({
+          type: "showExternalContentFromExternalContent_w_ExternalContent_3955_widgetExternalContent37730",
+          targetWidget: "w_ExternalContent_3955_widgetExternalContent37730",
+          events: "sendContent",
+          passedData: param,
+        });
+      });
+      severitySelect.addEventListener("change", (event) => {
+        data.severity = event.target.value;
+        param.data = data;
+        parent.$("body").trigger({
+          type: "showExternalContentFromExternalContent_w_ExternalContent_3955_widgetExternalContent37730",
+          targetWidget: "w_ExternalContent_3955_widgetExternalContent37730",
+          events: "sendContent",
+          passedData: param,
+        });
+      });
+      peopleInvolvedSelect.addEventListener("change", (event) => {
+        data.peopleInvolved = event.target.value;
+        param.data = data;
+        parent.$("body").trigger({
+          type: "showExternalContentFromExternalContent_w_ExternalContent_3955_widgetExternalContent37730",
+          targetWidget: "w_ExternalContent_3955_widgetExternalContent37730",
+          events: "sendContent",
+          passedData: param,
+        });
+      });
+      impactSelect.addEventListener("change", (event) => {
+        data.impact = event.target.value;
+        param.data = data;
+        parent.$("body").trigger({
+          type: "showExternalContentFromExternalContent_w_ExternalContent_3955_widgetExternalContent37730",
+          targetWidget: "w_ExternalContent_3955_widgetExternalContent37730",
+          events: "sendContent",
+          passedData: param,
+        });
+      });
+      function action(paramString) {
+        console.log(paramString);
+        nameInput.value = "";
+        kindSelect.selectedIndex = 0;
+        severitySelect.selectedIndex = 0;
+        peopleInvolvedSelect.selectedIndex = 0;
+        impactSelect.selectedIndex = 0;
+        descInput.value = "";
+      }
+    </script>
+  </body>
+</html>

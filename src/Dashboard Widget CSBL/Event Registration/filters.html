@@ -1,0 +1,182 @@
+<html>
+  <head>
+    <style>
+      #container {
+        display: flex;
+        flex-direction: column;
+      }
+      #form-row {
+        padding: 4px;
+      }
+      label {
+        font-weight: 700;
+        font-family: arial;
+        font-size: 15px;
+        padding: 3.5px 0;
+        color: #fff;
+        margin: 10 22;
+        white-space: pre-line;
+      }
+      .btn {
+        cursor: pointer;
+        background-color: #add8e6;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="form-row">
+        <label>Severity</label
+        ><select class="form-control" id="severity" name="severity">
+          <option value="null"></option>
+          <option value="White">Low (White)</option>
+          <option value="Yellow">Relevant (Yellow)</option>
+          <option value="Orange">Medium (Orange)</option>
+          <option value="Red">Critical (Red)</option>
+        </select>
+      </div>
+      <div id="form-row">
+        <label>Status</label
+        ><select class="form-control" id="status" name="status">
+          <option value="null"></option>
+          <option value="init">Init</option>
+          <option value="In progress">In Progress</option>
+          <option value="Waiting">Waiting</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div id="form-row">
+        <div id="btn-container">
+          <button class="btn" id="reset">Reset</button
+          ><button class="btn" id="resetMap">Reset Map</button
+          ><button class="btn" id="filter">Filter</button>
+        </div>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      const reset = document.getElementById("reset");
+      const filterButton = document.getElementById("filter");
+      const resetMapButton = document.getElementById("resetMap");
+
+      function removePin() {
+        let removePin = {};
+        removePin.eventGenerator = $(this);
+        removePin.desc = "events";
+        removePin.query =
+          "https://www.snap4city.org/superservicemap/api/api/v1/?selection=43.843588;11.138763427&maxDists=5000&model=AlertMilestone";
+        removePin.color1 = "#ebb113";
+        removePin.color2 = "#eb8a13";
+        removePin.targets = "";
+        removePin.display = "pins";
+
+        parent.$("body").trigger({
+          type: "removeSelectorPin",
+          target: "w_Map_3955_widgetMap37993",
+          passedData: removePin,
+        });
+      }
+
+      reset.addEventListener("click", function () {
+        removePin();
+
+        parent.$("body").trigger({
+          eventGenerator: $(this),
+          type: "showDeviceTableFromExternalContent_NR_5ca9ee4c15d6b676_3955widgetDeviceTable38015",
+          targetWidget: "NR_5ca9ee4c15d6b676_3955widgetDeviceTable38015",
+          passedData: {
+            ordering: "dateObserved",
+            query:
+              "https://www.snap4city.org/superservicemap/api/v1/iot-search/?selection=43.843588;11.138763427&maxDists=5000&format=json&model=AlertMilestone&valueFilters=status!:Completed",
+            actions: [
+              "pin",
+              "https://d1nhio0ox7pgb.cloudfront.net/_img/o_collection_png/green_dark_grey/512x512/plain/surveillance_camera2.png",
+            ],
+            columnsToShow: ["id", "dateObserved", "status", "Severity"],
+          },
+        });
+      });
+      filterButton.addEventListener("click", function () {
+        var selectStatus = document.getElementById("status");
+        var selectSeverity = document.getElementById("severity");
+        var elementStatus = selectStatus.value;
+        var elementSeverity = selectSeverity.value;
+        removePin();
+        var filterStatus = "";
+        var filterSeverity = "";
+        var valueFilters = "";
+        var count = 0;
+        //
+        if (elementStatus !== "null" && elementStatus !== null) {
+          filterStatus = "status:" + elementStatus;
+          count++;
+        }
+        if (elementSeverity !== "null" && elementSeverity !== null) {
+          filterSeverity = "Severity:" + elementSeverity;
+          count++;
+        }
+        if (count > 0) {
+          valueFilters = "&valueFilters=" + filterStatus + ";" + filterSeverity;
+          if (valueFilters.endsWith(";")) {
+            valueFilters = valueFilters.slice(0, -1);
+          }
+          if (valueFilters.includes("valueFilters=;")) {
+            valueFilters = valueFilters.replace(
+              "valueFilters=;",
+              "valueFilters="
+            );
+          }
+        } else {
+          valueFilters = "";
+        }
+        console.log("elementStatus: " + elementStatus);
+        console.log("elementSeverity: " + elementSeverity);
+        console.log("FILTER");
+        let coordsAndType = {};
+        coordsAndType.eventGenerator = $(this);
+        coordsAndType.desc = "events";
+        coordsAndType.query =
+          "https://www.snap4city.org/superservicemap/api/v1/iot-search/?selection=43.843588;11.138763427&sortOnValue=dateObserved:desc&maxResults=500&maxDists=5000&format=json&model=AlertMilestone" +
+          valueFilters;
+        coordsAndType.color1 = "#ebb113";
+        coordsAndType.color2 = "#eb8a13";
+        coordsAndType.targets = "";
+        coordsAndType.display = "pins";
+        coordsAndType.queryType = "Default";
+        coordsAndType.iconTextMode = "text";
+        coordsAndType.pinattr = "square";
+        coordsAndType.pincolor = "#959595";
+        coordsAndType.symbolcolor = "undefined";
+        coordsAndType.iconFilePath =
+          "https://www.snap4city.org/dashboardSmartCity/img/synopticTemplates/svg/140_SVG_Alert_Status.svg";
+        coordsAndType.altViewMode = "DynamicCustomPin";
+        coordsAndType.bubbleSelectedMetric = "Severity";
+        parent.$("body").trigger({
+          type: "addBubbleChart",
+          target: "w_Map_3955_widgetMap37993",
+          passedData: coordsAndType,
+        });
+        parent.$("body").trigger({
+          eventGenerator: $(this),
+          type: "showDeviceTableFromExternalContent_NR_5ca9ee4c15d6b676_3955widgetDeviceTable38015",
+          targetWidget: "NR_5ca9ee4c15d6b676_3955widgetDeviceTable38015",
+          passedData: {
+            ordering: "dateObserved",
+            query:
+              "https://www.snap4city.org/superservicemap/api/v1/iot-search/?selection=43.843588;11.138763427&maxResults=500&maxDists=5000&format=json&model=AlertMilestone" +
+              valueFilters,
+            actions: [
+              "pin",
+              "https://d1nhio0ox7pgb.cloudfront.net/_img/o_collection_png/green_dark_grey/512x512/plain/surveillance_camera2.png",
+            ],
+            columnsToShow: ["id", "dateObserved", "status", "Severity"],
+          },
+        });
+      });
+      resetMapButton.addEventListener("click", function () {
+        removePin();
+      });
+    </script>
+  </body>
+</html>

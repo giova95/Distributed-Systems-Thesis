@@ -1,0 +1,218 @@
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0 auto;
+      }
+      .info {
+        font-weight: 700;
+        font-size: 13px;
+        font-family: "Arial Black", Gadget, sans-serif;
+        color: #fff;
+        margin: 10 22;
+        white-space: pre-line;
+        word-wrap: break-word;
+        overflow: auto;
+        max-height: 200px;
+      }
+      #btn-container {
+        position: absolute;
+        bottom: 40px;
+        transform: translateX(8%);
+      }
+      .btn {
+        cursor: pointer;
+        background-color: #add8e6;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <p class="info" id="info"></p>
+    </div>
+    <div id="btn-container">
+      <button class="btn" id="clear">Clear</button>
+      <button class="btn" id="register">Change Status</button>
+      <button class="btn" id="refresh">Refresh</button>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script type="text/javascript">
+      const infoElement = document.getElementById("info");
+      const clearButton = document.getElementById("clear");
+      const registerButton = document.getElementById("register");
+      const refrButton = document.getElementById("refresh");
+      let status = "";
+      let long = "";
+      let gps = "";
+      let city = "";
+      let address = "";
+      let deviceName = "";
+      let kind = "";
+      let severity = "";
+      let peopleInvolved = "";
+      let impact = "";
+      let description = "";
+
+      clearButton.addEventListener("click", function () {
+        infoElement.innerHTML = "";
+        status = "";
+        deviceName = "";
+        kind = "";
+        severity = "";
+        peopleInvolved = "";
+        impact = "";
+        description = "";
+        city = "";
+        address = "";
+        gps = "";
+        const clear = {
+          action: "clear",
+        };
+      });
+
+      function action(param) {
+        if (typeof param === "string") {
+          console.log("da menu tendina");
+          console.log(param);
+          status = param;
+          $("#status_area").text(status);
+        } else {
+          status = param.status;
+          console.log(status);
+          deviceName = param.device;
+          kind = param.Kind;
+          severity = param.Severity;
+          peopleInvolved = param.People;
+          impact = param.Impact;
+          description = param.Description;
+          city = param.City;
+          address = param.Address;
+          gps = param.position;
+          infoElement.innerHTML =
+            'Name: <span id="device_id">' +
+            deviceName +
+            "</span> <br> " +
+            'Status: <span id="status_area">' +
+            status +
+            "</span><br>" +
+            "Kind: " +
+            kind +
+            " <br> " +
+            "Severity: " +
+            severity +
+            " <br> " +
+            " #people: " +
+            peopleInvolved +
+            " <br> " +
+            " Impact: " +
+            impact +
+            " <br> " +
+            " Description: " +
+            description +
+            " <br> " +
+            "GPS: " +
+            gps +
+            " <br> " +
+            "City: " +
+            city +
+            " <br> " +
+            "Address: " +
+            address;
+        }
+      }
+      registerButton.addEventListener("click", async function () {
+        //get access token
+        let result;
+        if (
+          " < ? = $_SESSION['refreshToken'] ? > " != null &&
+          " < ? = $_SESSION['refreshToken'] ? > " != ""
+        ) {
+          result = await $.ajax({
+            url: "https://www.snap4city.org/dashboardSmartCity/controllers/getAccessToken.php",
+            data: {
+              refresh_token: " < ? = $_SESSION['refreshToken'] ? > ",
+            },
+            type: "GET",
+            async: true,
+            dataType: "json",
+            success: function (dataSso) {
+              accessToken = dataSso.accessToken;
+            },
+            error: function (errorData) {
+              console.log("Error in AJAX request for access token.");
+            },
+          });
+        }
+
+        let AccessToken = result.accessToken;
+        //get current user
+        let decoded;
+        try {
+          // Decode the JWT token
+          decoded = await jwt_decode(AccessToken);
+        } catch (error) {
+          console.error("Error decoding JWT token:", error);
+        }
+        let user = decoded.preferred_username;
+        //send data to device
+        const headerSend = {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `bearer ${AccessToken}`,
+        };
+        const deviceType = "Event";
+        const deviceId = $("#device_id").text();
+        const url = `https://www.snap4city.org/orionfilter/orionUNIFI/v2/entities/${deviceId}/attrs?elementid=${deviceId}&type=${deviceType}`;
+        const timestamp = new Date(Date.now()).toISOString();
+        const json = JSON.stringify({
+          status: {
+            value: status,
+            type: "string",
+          },
+          dateObserved: {
+            value: timestamp,
+            type: "string",
+          },
+        });
+        
+        try {
+          const response = await fetch(url, {
+            method: "PATCH",
+            headers: headerSend,
+            body: json,
+          });
+          if (!response.ok) {
+            console.log(response);
+            throw new Error(`HTTP Error: ${response.status}`);
+            alert(`HTTP Error: ${response.status}`);
+          } else {
+            console.log("\nSuccessful data change");
+            alert("Successful data change");
+          }
+        } catch (error) {
+          console.error("Oops: Something Else", error);
+          alert("Oops: Something Else", error);
+        }
+      });
+      
+      refrButton.addEventListener("click", function () {
+        parent.$("body").trigger({
+          type: "showDeviceTableFromExternalContent_NR_680f49785f0e6601_3998widgetDeviceTable37956",
+          eventGenerator: $(this),
+          targetWidget: "NR_680f49785f0e6601_3998widgetDeviceTable37956",
+          passedData: {
+            ordering: "status",
+            query:
+              "https://www.snap4city.org/superservicemap/api/v1/iot-search/?selection=43.843588;11.138763427&maxResults=50&maxDists=300&format=json&model=AlertMilestone",
+            actions: [
+              "https://w7.pngwing.com/pngs/766/581/png-transparent-computer-icons-editing-others.png",
+            ],
+            columnsToShow: ["id", "dateObserved", "User", "Severity", "status"],
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

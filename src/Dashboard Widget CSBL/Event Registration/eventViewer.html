@@ -1,0 +1,299 @@
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0 auto;
+      }
+      .info {
+        font-weight: 700;
+        font-family: arial;
+        font-size: 15px;
+        color: #fff;
+        margin: 10 22;
+        white-space: pre-line;
+        word-wrap: break-word;
+        overflow: auto;
+        max-height: 200px;
+      }
+      #btn-container {
+        position: absolute;
+        bottom: 35px;
+        transform: translateX(8%);
+      }
+      .btn {
+        cursor: pointer;
+        background-color: #add8e6;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <p class="info" id="info"></p>
+    </div>
+    <div id="btn-container">
+      <button class="btn" id="clear">Clear</button>
+      <button class="btn" id="register">Register Event</button>
+      <button class="btn" id="refresh">Refresh</button>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script type="text/javascript">
+      const infoElement = document.getElementById("info");
+      const clearButton = document.getElementById("clear");
+      const registerButton = document.getElementById("register");
+      const refrButton = document.getElementById("refresh");
+      let lat = "";
+      let long = "";
+      let gps = "";
+      let city = "";
+      let address = "";
+      let deviceName = "";
+      let kind = "";
+      let severity = "";
+      let peopleInvolved = "";
+      let impact = "";
+      let description = "";
+
+      clearButton.addEventListener("click", function () {
+        infoElement.innerHTML = "";
+        lat = "";
+        long = "";
+        gps = "";
+        city = "";
+        address = "";
+        deviceName = "";
+        kind = "";
+        severity = "";
+        peopleInvolved = "";
+        impact = "";
+        description = "";
+
+        const clear = {
+          action: "clear",
+        };
+
+        parent.$("body").trigger({
+          type: "showExternalContentFromExternalContent_w_ExternalContent_3955_widgetExternalContent37731",
+
+          targetWidget: "w_ExternalContent_3955_widgetExternalContent37731",
+
+          events: "sendContent",
+
+          passedData: clear,
+        });
+      });
+
+      function action(param) {
+        if (typeof param === "string") {
+          let loc = JSON.parse(param);
+          lat = loc.latitude;
+          long = loc.longitude;
+          gps = "" + lat + "," + long;
+          city = loc.city;
+          address = loc.address;
+        } else {
+          const dataForm = param.data;
+          deviceName = dataForm.name;
+          kind = dataForm.kind;
+          severity = dataForm.severity;
+          peopleInvolved = dataForm.peopleInvolved;
+          impact = dataForm.impact;
+          description = dataForm.desc;
+        }
+        infoElement.innerHTML =
+          "Name: " +
+          deviceName +
+          " <br> " +
+          "Kind: " +
+          kind +
+          " <br> " +
+          "Severity: " +
+          severity +
+          " <br> " +
+          "#people: " +
+          peopleInvolved +
+          " <br> " +
+          "Impact: " +
+          impact +
+          " <br> " +
+          "Description: " +
+          description +
+          " <br> " +
+          "GPS: " +
+          gps +
+          " <br> " +
+          "City: " +
+          city +
+          " <br> " +
+          "Address: " +
+          address;
+      }
+
+      registerButton.addEventListener("click", async function () {
+        if (deviceName === "") {
+          alert("Name is required! Insert in form.");
+        } else if (gps === "") {
+          alert("GPS is required! Click on Map.");
+        } else if (severity === "") {
+          alert("Severity is required! Insert in form.");
+        } else {
+          //get access token
+          let result;
+          if (
+            " < ? = $_SESSION['refreshToken'] ? > " != null &&
+            " < ? = $_SESSION['refreshToken'] ? > " != ""
+          ) {
+            result = await $.ajax({
+              url: "https://www.snap4city.org/dashboardSmartCity/controllers/getAccessToken.php",
+              data: {
+                refresh_token: " < ? = $_SESSION['refreshToken'] ? > ",
+              },
+              type: "GET",
+              async: true,
+              dataType: "json",
+              success: function (dataSso) {
+                accessToken = dataSso.accessToken;
+              },
+              error: function (errorData) {
+                console.log("Error in AJAX request for access token.");
+              },
+            });
+          }
+
+          let AccessToken = result.accessToken;
+          console.log(AccessToken);
+
+          //get current user
+          let decoded;
+          try {
+            // Decode the JWT token
+            decoded = await jwt_decode(AccessToken);
+          } catch (error) {
+            console.error("Error decoding JWT token:", error);
+          }
+          let user = decoded.preferred_username;
+          //send data to device
+          const headerSend = {
+            "Content-Type": "application/json",
+
+            Accept: "application/json",
+
+            Authorization: `bearer ${AccessToken}`,
+          };
+
+          const deviceType = "Event";
+          const deviceId = "ListenerFormNew";
+          const url = `https://www.snap4city.org/orionfilter/orion-DISIT-TEST/v2/entities/${deviceId}/attrs?elementid=${deviceId}&type=${deviceType}`;
+
+          address = address.replace("'", "&#39");
+          deviceName = deviceName.replace("'", "");
+          description = description.replace("'", "&#39");
+
+          const timestamp = new Date(Date.now()).toISOString();
+          const json = JSON.stringify({
+            Address: {
+              value: address,
+              type: "string",
+            },
+            City: {
+              value: city,
+              type: "string",
+            },
+            Description: {
+              type: "string",
+              value: description,
+            },
+            dateObserved: {
+              value: timestamp,
+              type: "string",
+            },
+            GPS: {
+              value: gps,
+              type: "float",
+            },
+            User: {
+              value: user,
+              type: "string",
+            },
+            Impact: {
+              value: impact,
+              type: "string",
+            },
+            Kind: {
+              value: kind,
+              type: "string",
+            },
+            Name: {
+              value: deviceName,
+              type: "string",
+            },
+            People: {
+              value: peopleInvolved,
+              type: "integer",
+            },
+            Severity: {
+              value: severity,
+              type: "string",
+            },
+          });
+
+          try {
+            const response = await fetch(url, {
+              method: "PATCH",
+              headers: headerSend,
+              body: json,
+            });
+
+            if (!response.ok) {
+              throw new Error(`HTTP Error: ${response.status}`);
+              alert(`HTTP Error: ${response.status}`);
+            } else {
+              console.log("\nSuccessful data entry");
+              alert("Successful data entry");
+            }
+          } catch (error) {
+            console.error("Oops: Something Else", error);
+            alert("Oops: Something Else", error);
+          }
+        }
+      });
+
+      refrButton.addEventListener("click", function () {
+        let coordsAndType = {};
+        coordsAndType.eventGenerator = $(this);
+        coordsAndType.desc = "Refresh Map";
+        coordsAndType.query =
+          "https://servicemap.disit.org/WebAppGrafo/api/v1/?selection=43.64471;11.005751;43.89471;11.505751&model=AlertMilestone&maxResults=200&format=json";
+        coordsAndType.display = "pins";
+        coordsAndType.queryType = "Default";
+        coordsAndType.iconTextMode = "text";
+        coordsAndType.pinattr = "square";
+        coordsAndType.pincolor = "#CC0303";
+        console.log(coordsAndType);
+
+        parent.$("body").trigger({
+          type: "addSelectorPin",
+          target: "w_Map_3955_widgetMap37655",
+          passedData: coordsAndType,
+        });
+
+        parent.$("body").trigger({
+          eventGenerator: $(this),
+          type: "showDeviceTableFromExternalContent_NR_5ca9ee4c15d6b676_3955widgetDeviceTable38015",
+          targetWidget: "NR_5ca9ee4c15d6b676_3955widgetDeviceTable38015",
+          passedData: {
+            ordering: "dateObserved",
+            query:
+              "https://www.snap4city.org/superservicemap/api/v1/iot-search/?selection=43.843588;11.138763427&maxDists=300&format=json&model=AlertMilestone&valueFilters=status!:Completed",
+            actions: [
+              "pin",
+              "https://d1nhio0ox7pgb.cloudfront.net/_img/o_collection_png/green_dark_grey/512x512/plain/surveillance_camera2.png",
+            ],
+            columnsToShow: ["id", "dateObserved", "status", "Severity"],
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

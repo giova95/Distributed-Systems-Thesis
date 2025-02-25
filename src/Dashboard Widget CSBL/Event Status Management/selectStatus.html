@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <style>
+      #container {
+        display: flex;
+        flex-direction: column;
+      }
+      #form-row {
+        padding: 4px;
+      }
+      label {
+        font-family: "Roboto Condensed", sans-serif;
+        font-weight: 500;
+        color: #008fbf;
+        padding: 3.5px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="form-row">
+        <label>Status</label
+        ><select class="form-control" id="status" name="status">
+          <option value=""></option>
+          <option value="init">Init</option>
+          <option value="In progress">In progress</option>
+          <option value="Waiting">Waiting</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      const statusSelect = document.getElementById("status");
+      
+      function action(param) {
+        var status = param.status;
+        $("#status").val(status);
+      }
+      
+      statusSelect.addEventListener("change", function () {
+        let status = event.target.value;
+        parent.$("body").trigger({
+          type: "showExternalContentFromExternalContent_w_ExternalContent_3998_widgetExternalContent37957",
+          targetWidget: "w_ExternalContent_3998_widgetExternalContent37957",
+          events: "sendContent",
+          passedData: status,
+        });
+      });
+    </script>
+  </body>
+</html>
